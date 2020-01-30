@@ -20,7 +20,7 @@
 ##---------------------------------------------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
-PROJECT(ros_flow VERSION 0.1.0)
+PROJECT(ros_mplugin VERSION 0.1.0)
 
 
 #########################################
@@ -33,10 +33,10 @@ set(CMAKE_AUTOMOC ON)
 #########################################
 ######			Library	   ######
 #########################################
-file(GLOB_RECURSE ROS_FLOW_HEADERS "./include/*.h" "./include/*.inl")
-file(GLOB_RECURSE ROS_FLOW_SOURCES "./src/*.cpp")
+file(GLOB_RECURSE ROS_MPLUGIN_HEADERS "./include/*.h" "./include/*.inl")
+file(GLOB_RECURSE ROS_MPLUGIN_SOURCES "./src/*.cpp")
 
-add_library(${PROJECT_NAME} SHARED ${ROS_FLOW_HEADERS} ${ROS_FLOW_SOURCES})
+add_library(${PROJECT_NAME} SHARED ${ROS_MPLUGIN_HEADERS} ${ROS_MPLUGIN_SOURCES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
 
@@ -78,13 +78,13 @@ if(${catkin_FOUND})
 		CATKIN_DEPENDS roscpp tf rosbag cv_bridge image_transport sensor_msgs geometry_msgs #dvs_msgs
 		INCLUDE_DIRS include
 	)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC USE_ROS)
 	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${catkin_LIBRARIES} ${rosbag_LIBRARIES})
 	target_include_directories(${PROJECT_NAME}  PUBLIC ${catkin_INCLUDE_DIRS} ${rosbag_INCLUDE_DIRS})
 	target_include_directories(${PROJECT_NAME}  PUBLIC ${Boost_INCLUDE_DIRS} )
 	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${Boost_LIBRARIES})
 	add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-endif()
+	# target_compile_definitions(${PROJECT_NAME} PUBLIC USE_ROS)
+  endif()
 
 #########################################
 ######			Test				######
@@ -96,8 +96,7 @@ endif()
 
 #########################################
 ######			INSTALL 		   ######
-#########################################
-# include(CMakePackageConfigHelpers)
+#####################include(CMakePackageConfigHelpers)
 
 
 # ## INSTALLATION C++ Library
@@ -105,15 +104,15 @@ endif()
 #   set(CMAKE_INSTALL_PREFIX "/usr/local")
 # endif() 
 
-# install(TARGETS ros_flow
-#         EXPORT ros_flowTargets
+# install(TARGETS ros_mplugin
+#         EXPORT ros_mpluginTargets
 #         LIBRARY DESTINATION lib
 #         ARCHIVE DESTINATION lib
 #         INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}
 #         )
 
 # write_basic_package_version_file(
-#   ros_flowConfigVersion.cmake
+#   ros_mpluginConfigVersion.cmake
 #     VERSION ${PACKAGE_VERSION}
 #     COMPATIBILITY AnyNewerVersion
 #     )
@@ -123,18 +122,18 @@ endif()
 # install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.h")
 # install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.inl")
 
-# export(TARGETS ros_flow NAMESPACE ros_flow:: FILE ros_flow.cmake)
+# export(TARGETS ros_mplugin NAMESPACE ros_mplugin:: FILE ros_mplugin.cmake)
 
-# # This generates ros_flowTargets.cmake
-# install(EXPORT ros_flowTargets
-#     FILE ros_flowTargets.cmake
-#     NAMESPACE ros_flow::
-#     DESTINATION lib/cmake/ros_flow
+# # This generates ros_mpluginTargets.cmake
+# install(EXPORT ros_mpluginTargets
+#     FILE ros_mpluginTargets.cmake
+#     NAMESPACE ros_mplugin::
+#     DESTINATION lib/cmake/ros_mplugin
 #     )
 
-# configure_file(ros_flowConfig.cmake.in ros_flowConfig.cmake @ONLY)
-# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ros_flowConfig.cmake"
-#         DESTINATION lib/cmake/ros_flow
+# configure_file(ros_mpluginConfig.cmake.in ros_mpluginConfig.cmake @ONLY)
+# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ros_mpluginConfig.cmake"
+#         DESTINATION lib/cmake/ros_mplugin
 #         )
 
 # # uninstall target 
@@ -145,7 +144,8 @@ endif()
 #       IMMEDIATE @ONLY) 
  
 #   add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake) 
-# endif() 
+# endif() ####################
+# 
 
 
  
