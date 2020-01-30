@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------------------------
-//  flow
+//  mico
 //---------------------------------------------------------------------------------------------------------------------
 //  Copyright 2019 Pablo Ramon Soria (a.k.a. Bardo91) pabramsor@gmail.com
 //---------------------------------------------------------------------------------------------------------------------
@@ -19,43 +19,10 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_BLOCK_PUBLISHER_H_
-#define ROS_MPLUGIN_BLOCK_PUBLISHER_H_
-
-#include <ros/ros.h>
-#include <flow/flow.h>
+#include <ros_mplugin/ros_mplugin_flow.h>
 
 namespace ros_mplugin{
 
-    template<typename _Trait >
-    class BlockROSPublisher : public flow::Block{
-    public:
-        std::string name() {return _Trait::blockName_; }
 
-		BlockROSPublisher(){
-            createPolicy(_Trait::input_);
-            for (auto tag : _Trait::input_){
-                registerCallback({tag.first}, 
-                                    [&](flow::DataFlow _data){
-                                        auto topicContent =std::any_cast<typename _Trait::ROSType_>(_Trait::conversion_(_data));
-                                        pubROS_.publish(topicContent);
-                                    }
-                );
-            }    
-        };
-
-        virtual bool configure(std::unordered_map<std::string, std::string> _params) override{
-            std::string topicPublish = _params["topic"];
-            pubROS_ = nh_.advertise< typename _Trait::ROSType_ >(topicPublish, 1 );
-            return true;
-        }
-        std::vector<std::string> parameters() override {return {"topic"};}
-
-    private:
-		ros::NodeHandle nh_;
-		ros::Publisher pubROS_;
-    };
+    
 }
-
-
-#endif

@@ -23,9 +23,8 @@
 #define ROS_MPLUGIN_BLOCK_SUBSCRIBER_H_
 
 #include <ros/ros.h>
+#include <flow/flow.h>
 
-#include <flow/Block.h>
-#include <flow/Outpipe.h>
 
 namespace ros_mplugin{
 	template<typename _Trait >

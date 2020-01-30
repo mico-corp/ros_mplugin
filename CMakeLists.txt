@@ -86,6 +86,12 @@ if(${catkin_FOUND})
 	# target_compile_definitions(${PROJECT_NAME} PUBLIC USE_ROS)
   endif()
 
+  find_package(flow REQUIRED)
+  if (${flow_FOUND})
+    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC flow::flow)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC HAS_FLOW)
+  endif(${flow_FOUND})
+
 #########################################
 ######			Test				######
 #########################################
