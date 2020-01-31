@@ -23,6 +23,7 @@
 #define ROS_MPLUGIN_FLOW_H_
 
 #include <flow/flow.h>
+#include <ros/ros.h>
 
 #include <ros_mplugin/streamers/ROSStreamers.h>
 #include <ros_mplugin/publishers/ROSPublishers.h>
@@ -30,6 +31,14 @@
 namespace ros_mplugin{
 
     extern "C" flow::PluginNodeCreator* factory(){
+
+        std::map<std::string, std::string> remaps;
+        remaps["__name"] = "mplugin_node";
+
+        ros::init(remaps, "mplugin_node", (uint32_t)0);
+        ros::AsyncSpinner spinner(4);
+        spinner.start();
+
         flow::PluginNodeCreator *creator = new flow::PluginNodeCreator;
 
         creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberPoseStamped> >(); });
