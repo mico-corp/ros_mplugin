@@ -20,7 +20,8 @@
 ##---------------------------------------------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
-PROJECT(ros_mplugin VERSION 0.1.0)
+PROJECT(mico VERSION 0.1)
+set(PLUGIN_NAME ${PROJECT_NAME}-ros_mplugin)
 
 
 #########################################
@@ -36,16 +37,16 @@ set(CMAKE_AUTOMOC ON)
 file(GLOB_RECURSE ROS_MPLUGIN_HEADERS "./include/*.h" "./include/*.inl")
 file(GLOB_RECURSE ROS_MPLUGIN_SOURCES "./src/*.cpp")
 
-add_library(${PROJECT_NAME} SHARED ${ROS_MPLUGIN_HEADERS} ${ROS_MPLUGIN_SOURCES})
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
+add_library(${PLUGIN_NAME} SHARED ${ROS_MPLUGIN_HEADERS} ${ROS_MPLUGIN_SOURCES})
+target_compile_features(${PLUGIN_NAME} PUBLIC cxx_std_17)
+set_target_properties(${PLUGIN_NAME} PROPERTIES LINKER_LANGUAGE C)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PLUGIN_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(${PROJECT_NAME} LINK_PUBLIC pthread)
+target_link_libraries(${PLUGIN_NAME} LINK_PUBLIC pthread)
 
 #########################################
 ######			Dependencies       ######
@@ -53,14 +54,14 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC pthread)
 
 find_package(Eigen3 REQUIRED)
 if(${Eigen3_FOUND})
-  target_include_directories(${PROJECT_NAME} PUBLIC "/usr/include/eigen3")
+  target_include_directories(${PLUGIN_NAME} PUBLIC "/usr/include/eigen3")
 endif()
 
 find_package(PCL QUIET REQUIRED)
 if(${PCL_FOUND})
-  target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE ${PCL_LIBRARIES})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_PCL" "DISABLE_PCAP" "DISABLE_PNG" "DISABLE_LIBUSB_1_0")
+  target_include_directories(${PLUGIN_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
+  target_link_libraries(${PLUGIN_NAME} LINK_PRIVATE ${PCL_LIBRARIES})
+  target_compile_definitions(${PLUGIN_NAME} PUBLIC "ENABLE_PCL" "DISABLE_PCAP" "DISABLE_PNG" "DISABLE_LIBUSB_1_0")
 endif()
 
 if(${BUILD_DVS})
@@ -78,18 +79,18 @@ if(${catkin_FOUND})
 		CATKIN_DEPENDS roscpp tf rosbag cv_bridge image_transport sensor_msgs geometry_msgs #dvs_msgs
 		INCLUDE_DIRS include
 	)
-	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${catkin_LIBRARIES} ${rosbag_LIBRARIES})
-	target_include_directories(${PROJECT_NAME}  PUBLIC ${catkin_INCLUDE_DIRS} ${rosbag_INCLUDE_DIRS})
-	target_include_directories(${PROJECT_NAME}  PUBLIC ${Boost_INCLUDE_DIRS} )
-	target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${Boost_LIBRARIES})
-	add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-	# target_compile_definitions(${PROJECT_NAME} PUBLIC USE_ROS)
+	target_link_libraries(${PLUGIN_NAME} LINK_PUBLIC ${catkin_LIBRARIES} ${rosbag_LIBRARIES})
+	target_include_directories(${PLUGIN_NAME}  PUBLIC ${catkin_INCLUDE_DIRS} ${rosbag_INCLUDE_DIRS})
+	target_include_directories(${PLUGIN_NAME}  PUBLIC ${Boost_INCLUDE_DIRS} )
+	target_link_libraries(${PLUGIN_NAME} LINK_PUBLIC ${Boost_LIBRARIES})
+	add_dependencies(${PLUGIN_NAME} ${catkin_EXPORTED_TARGETS})
+	# target_compile_definitions(${PLUGIN_NAME} PUBLIC USE_ROS)
   endif()
 
   find_package(flow REQUIRED)
   if (${flow_FOUND})
-    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC flow::flow)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC HAS_FLOW)
+    target_link_libraries(${PLUGIN_NAME} LINK_PUBLIC flow::flow)
+    target_compile_definitions(${PLUGIN_NAME} PUBLIC HAS_FLOW)
   endif(${flow_FOUND})
 
 #########################################
@@ -102,60 +103,69 @@ endif()
 
 #########################################
 ######			INSTALL 		   ######
-#####################include(CMakePackageConfigHelpers)
+#########################################
+
+include(CMakePackageConfigHelpers)
+
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
+endif() 
 
 
-# ## INSTALLATION C++ Library
-# if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-#   set(CMAKE_INSTALL_PREFIX "/usr/local")
-# endif() 
-
-# install(TARGETS ros_mplugin
-#         EXPORT ros_mpluginTargets
-#         LIBRARY DESTINATION lib
-#         ARCHIVE DESTINATION lib
-#         INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}
-#         )
-
-# write_basic_package_version_file(
-#   ros_mpluginConfigVersion.cmake
-#     VERSION ${PACKAGE_VERSION}
-#     COMPATIBILITY AnyNewerVersion
-#     )
+install(TARGETS ${PLUGIN_NAME} EXPORT ${PLUGIN_NAME}-targets
+		COMPONENT ${PLUGIN_NAME}
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		RUNTIME DESTINATION bin
+		INCLUDES DESTINATION include
+	  )
 
 
-# # This installs the include folder
-# install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.h")
-# install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX} FILES_MATCHING PATTERN "*.inl")
+install(EXPORT ${PLUGIN_NAME}-targets
+	FILE "${PLUGIN_NAME}-targets.cmake"
+	NAMESPACE ${PLUGIN_NAME}::
+	DESTINATION lib/cmake/${PLUGIN_NAME}
+	COMPONENT ${PLUGIN_NAME}
+)
 
-# export(TARGETS ros_mplugin NAMESPACE ros_mplugin:: FILE ros_mplugin.cmake)
+# configure_file("${PLUGIN_NAME}-config.cmake.in"
+# 	"${CMAKE_BINARY_DIR}/${PLUGIN_NAME}-config.cmake"
+# 	@ONLY
+# )
 
-# # This generates ros_mpluginTargets.cmake
-# install(EXPORT ros_mpluginTargets
-#     FILE ros_mpluginTargets.cmake
-#     NAMESPACE ros_mplugin::
-#     DESTINATION lib/cmake/ros_mplugin
-#     )
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_BINARY_DIR}/${PLUGIN_NAME}-config-version.cmake"
+  VERSION ${version}
+  COMPATIBILITY AnyNewerVersion
+)
 
-# configure_file(ros_mpluginConfig.cmake.in ros_mpluginConfig.cmake @ONLY)
-# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ros_mpluginConfig.cmake"
-#         DESTINATION lib/cmake/ros_mplugin
-#         )
+install(
+  FILES
+    # "${CMAKE_BINARY_DIR}/${PLUGIN_NAME}-config.cmake"
+    "${CMAKE_BINARY_DIR}/${PLUGIN_NAME}-config-version.cmake"
+  DESTINATION lib/cmake/${PLUGIN_NAME}
+  COMPONENT ${PLUGIN_NAME}
+)
 
-# # uninstall target 
-# if(NOT TARGET uninstall) 
-#   configure_file( 
-#       "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in" 
-#       "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" 
-#       IMMEDIATE @ONLY) 
+# DESTINATION will be automatically prefixed by ${CMAKE_INSTALL_PREFIX}
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  COMPONENT ${PLUGIN_NAME}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+
+# uninstall target 
+if(NOT TARGET uninstall) 
+  configure_file( 
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in" 
+      "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake" 
+      @ONLY) 
  
-#   add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake) 
-# endif() ####################
-# 
+  add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake) 
+endif() 
 
-
- 
 # FLOW INSTALL target 
 add_custom_target(flow_install
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/lib${PROJECT_NAME}.so $ENV{HOME}/.flow/plugins/lib${PROJECT_NAME}.so
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/lib${PLUGIN_NAME}.so $ENV{HOME}/.flow/plugins/lib${PLUGIN_NAME}.so
 )

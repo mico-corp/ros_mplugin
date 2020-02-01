@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>ros_mplugin</name>
+  <name>mico</name>
   <version>0.0.1</version>
   <description>ros mico plugin</description>
 
