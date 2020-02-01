@@ -41,15 +41,15 @@ namespace ros_mplugin{
 
         flow::PluginNodeCreator *creator = new flow::PluginNodeCreator;
 
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberPoseStamped> >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberCloud      > >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberImu        > >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberGPS        > >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberImage      > >(); });
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberPoseStamped> >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberCloud      > >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberImu        > >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberGPS        > >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSSubscriberImage      > >(); }, "ROS");
 
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherPoseStamped > >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherPointCloud  > >(); });
-        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherImage       > >(); });
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherPoseStamped > >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherPointCloud  > >(); }, "ROS");
+        creator->registerNodeCreator([](){ return std::make_unique<flow::FlowVisualBlock<BlockROSPublisherImage       > >(); }, "ROS");
 
         return creator;
     }
