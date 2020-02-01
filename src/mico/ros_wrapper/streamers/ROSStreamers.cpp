@@ -19,7 +19,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <ros_mplugin/streamers/ROSStreamers.h>
+#include <mico/ros_wrapper/streamers/ROSStreamers.h>
 
 namespace ros_mplugin{
 

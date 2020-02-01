@@ -19,7 +19,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <ros_mplugin/publishers/ROSPublishers.h>
+#include <mico/ros_wrapper/publishers/ROSPublishers.h>
 
 namespace ros_mplugin{
 

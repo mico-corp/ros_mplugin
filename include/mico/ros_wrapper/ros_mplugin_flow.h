@@ -25,8 +25,8 @@
 #include <flow/flow.h>
 #include <ros/ros.h>
 
-#include <ros_mplugin/streamers/ROSStreamers.h>
-#include <ros_mplugin/publishers/ROSPublishers.h>
+#include <mico/ros_wrapper/streamers/ROSStreamers.h>
+#include <mico/ros_wrapper/publishers/ROSPublishers.h>
 
 namespace ros_mplugin{
 

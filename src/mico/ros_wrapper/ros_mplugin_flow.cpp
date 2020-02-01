@@ -19,7 +19,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <ros_mplugin/ros_mplugin_flow.h>
+#include <mico/ros_wrapper/ros_mplugin_flow.h>
 
 namespace ros_mplugin{
 
