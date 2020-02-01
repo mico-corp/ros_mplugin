@@ -155,3 +155,7 @@ endif()
 
 
  
+# FLOW INSTALL target 
+add_custom_target(flow_install
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/lib${PROJECT_NAME}.so $ENV{HOME}/.flow/plugins/lib${PROJECT_NAME}.so
+)
