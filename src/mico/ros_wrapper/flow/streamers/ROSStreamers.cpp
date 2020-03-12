@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------------------------
-//  FLOW
+//  ROS wrapper MICO plugin
 //---------------------------------------------------------------------------------------------------------------------
-//  Copyright 2019 Pablo Ramon Soria (a.k.a. Bardo91) pabramsor@gmail.com
+//  Copyright 2020 - Marco Montes Grova (a.k.a. mgrova)  marrcogrova@gmail.com
 //---------------------------------------------------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 //  and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,12 +19,11 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <mico/ros_wrapper/streamers/ROSStreamers.h>
+#include <mico/ros_wrapper/flow/streamers/ROSStreamers.h>
 
-namespace ros_mplugin{
+namespace ros_wrapper{
 
     // Declaration of Trait structs
-	
 	//-------------------------------------------------------------------------------------------------------------
 	template<> std::string TraitPoseStamped::blockName_ = "ROS Subscriber Pose";
 	template<> std::map<std::string, std::string> TraitPoseStamped::output_ = {{{"Pose", "mat44"}}};

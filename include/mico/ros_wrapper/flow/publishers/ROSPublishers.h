@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------------------------
-//  flow
+//  ROS wrapper MICO plugin
 //---------------------------------------------------------------------------------------------------------------------
-//  Copyright 2019 Pablo Ramon Soria (a.k.a. Bardo91) pabramsor@gmail.com
+//  Copyright 2020 - Marco Montes Grova (a.k.a. mgrova)  marrcogrova@gmail.com
 //---------------------------------------------------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 //  and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,48 +19,39 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_STREAMERS_H_
-#define ROS_MPLUGIN_STREAMERS_H_
+#ifndef ROS_MPLUGIN_PUBLISHER_H_
+#define ROS_MPLUGIN_PUBLISHER_H_
 
-#include <mico/ros_wrapper/streamers/BlockROSSubscriber.h>
-#include <opencv2/opencv.hpp>
+#include <mico/ros_wrapper/flow/publishers/BlockROSPublisher.h>
 #include <Eigen/Eigen>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <opencv2/opencv.hpp>
 
+#include <tf2_eigen/tf2_eigen.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Pose.h>
 #include <sensor_msgs/Image.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <cv_bridge/cv_bridge.h>
-// #include <dvs_msgs/EventArray.h>
 
-namespace ros_mplugin{
 
-	template<typename T_>
-	struct TraitRosSubscriber{
+namespace ros_wrapper{
+	template<typename _T>
+	struct TraitRosPublisher{
 		static std::string blockName_;
-		static std::map<std::string, std::string> output_;
-		static std::any conversion_(std::string _tag, const typename T_::ConstPtr &_msg);
-		typedef T_ ROSType_;
+		static std::map<std::string, std::string> input_;
+		static std::any conversion_(flow::DataFlow _data);
+		typedef _T ROSType_;
 	};
 
-	typedef TraitRosSubscriber<geometry_msgs::PoseStamped> 	TraitPoseStamped;
-	typedef TraitRosSubscriber<sensor_msgs::Imu> 			TraitImu;
-	typedef TraitRosSubscriber<sensor_msgs::NavSatFix> 		TraitGPS;
-	typedef TraitRosSubscriber<sensor_msgs::Image> 			TraitImage;
-	typedef TraitRosSubscriber<sensor_msgs::PointCloud2> 	TraitCloud;
-	// typedef TraitRosSubscriber<dvs_msgs::EventArray> 		TraitEvent;
+	typedef TraitRosPublisher< geometry_msgs::PoseStamped > TraitPoseStampedPublisher;
+	typedef TraitRosPublisher< sensor_msgs::PointCloud2   > TraitPointCloudPublisher;
+	typedef TraitRosPublisher< sensor_msgs::Image         > TraitImagePublisher;
 
-	typedef BlockROSSubscriber< TraitPoseStamped > 			BlockROSSubscriberPoseStamped;
-	typedef BlockROSSubscriber< TraitCloud       > 			BlockROSSubscriberCloud;
-	typedef BlockROSSubscriber< TraitImu         > 			BlockROSSubscriberImu;
-	typedef BlockROSSubscriber< TraitGPS         > 			BlockROSSubscriberGPS;
-	typedef BlockROSSubscriber< TraitImage       > 			BlockROSSubscriberImage;			
-	// typedef BlockROSSubscriber< TraitEvent       > 			BlockROSSubscriberEventArray;			
+	typedef BlockROSPublisher< TraitPoseStampedPublisher > BlockROSPublisherPoseStamped;
+	typedef BlockROSPublisher< TraitPointCloudPublisher  > BlockROSPublisherPointCloud;
+	typedef BlockROSPublisher< TraitImagePublisher       > BlockROSPublisherImage;
 }
+
 
 #endif

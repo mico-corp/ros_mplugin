@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------------------------
-//  flow
+//  ROS wrapper MICO plugin
 //---------------------------------------------------------------------------------------------------------------------
-//  Copyright 2019 Pablo Ramon Soria (a.k.a. Bardo91) pabramsor@gmail.com
+//  Copyright 2020 - Marco Montes Grova (a.k.a. mgrova)  marrcogrova@gmail.com
 //---------------------------------------------------------------------------------------------------------------------
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 //  and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,42 +19,45 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_BLOCK_PUBLISHER_H_
-#define ROS_MPLUGIN_BLOCK_PUBLISHER_H_
+#ifndef ROS_MPLUGIN_BLOCK_SUBSCRIBER_H_
+#define ROS_MPLUGIN_BLOCK_SUBSCRIBER_H_
 
 #include <ros/ros.h>
 #include <flow/flow.h>
 
-namespace ros_mplugin{
 
-    template<typename _Trait >
-    class BlockROSPublisher : public flow::Block{
+namespace ros_wrapper{
+	template<typename _Trait >
+    class BlockROSSubscriber : public flow::Block{
     public:
-        std::string name() {return _Trait::blockName_; }
+		BlockROSSubscriber(){
+            for (auto tag : _Trait::output_)
+				createPipe(tag.first, tag.second);
+			}
 
-		BlockROSPublisher(){
-            createPolicy(_Trait::input_);
-            for (auto tag : _Trait::input_){
-                registerCallback({tag.first}, 
-                                    [&](flow::DataFlow _data){
-                                        auto topicContent =std::any_cast<typename _Trait::ROSType_>(_Trait::conversion_(_data));
-                                        pubROS_.publish(topicContent);
-                                    }
-                );
-            }    
-        };
+        std::string name() {  return _Trait::blockName_; }
 
         virtual bool configure(std::unordered_map<std::string, std::string> _params) override{
-            std::string topicPublish = _params["topic"];
-            pubROS_ = nh_.advertise< typename _Trait::ROSType_ >(topicPublish, 1 );
-            return true;
+            subROS_ = nh_.subscribe<typename _Trait::ROSType_>(_params["topic"], 1 , &BlockROSSubscriber::subsCallback, this);
+	    	return true;
+	    }
+
+        std::vector<std::string> parameters() override {return {"topic"};} 
+
+    private:
+        void subsCallback(const typename _Trait::ROSType_::ConstPtr &_msg){
+			for (auto tag : _Trait::output_){
+				if(getPipe(tag.first)->registrations() !=0 ){
+               		getPipe(tag.first)->flush(_Trait::conversion_(tag.first , _msg));
+				}
+			}
         }
-        std::vector<std::string> parameters() override {return {"topic"};}
 
     private:
 		ros::NodeHandle nh_;
-		ros::Publisher pubROS_;
+		ros::Subscriber subROS_;
     };
+
 }
 
 
