@@ -19,42 +19,34 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_BLOCK_PUBLISHER_H_
-#define ROS_MPLUGIN_BLOCK_PUBLISHER_H_
+#ifndef ROS_MPLUGIN_PUBLISHER_H_
+#define ROS_MPLUGIN_PUBLISHER_H_
 
-#include <ros/ros.h>
+#include <Eigen/Eigen>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <opencv2/opencv.hpp>
 #include <flow/flow.h>
 
+#include <tf2_eigen/tf2_eigen.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <sensor_msgs/Image.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <cv_bridge/cv_bridge.h>
+
+
 namespace ros_wrapper{
+	template<typename _T>
+	struct TraitROSPublisher{
+		static std::string blockName_;
+		static std::map<std::string, std::string> input_;
+		static std::any conversion_(flow::DataFlow _data);
+		typedef _T ROSType_;
+	};
 
-    template<typename _Trait >
-    class BlockROSPublisher : public flow::Block{
-    public:
-        std::string name() {return _Trait::blockName_; }
-
-		BlockROSPublisher(){
-            createPolicy(_Trait::input_);
-            for (auto tag : _Trait::input_){
-                registerCallback({tag.first}, 
-                                    [&](flow::DataFlow _data){
-                                        auto topicContent =std::any_cast<typename _Trait::ROSType_>(_Trait::conversion_(_data));
-                                        pubROS_.publish(topicContent);
-                                    }
-                );
-            }    
-        };
-
-        virtual bool configure(std::unordered_map<std::string, std::string> _params) override{
-            std::string topicPublish = _params["topic"];
-            pubROS_ = nh_.advertise< typename _Trait::ROSType_ >(topicPublish, 1 );
-            return true;
-        }
-        std::vector<std::string> parameters() override {return {"topic"};}
-
-    private:
-		ros::NodeHandle nh_;
-		ros::Publisher pubROS_;
-    };
+	typedef TraitROSPublisher< geometry_msgs::PoseStamped > TraitPoseStampedPublisher;
+	typedef TraitROSPublisher< sensor_msgs::PointCloud2   > TraitPointCloudPublisher;
+	typedef TraitROSPublisher< sensor_msgs::Image         > TraitImagePublisher;
 }
 
 

@@ -19,48 +19,50 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_STREAMERS_H_
-#define ROS_MPLUGIN_STREAMERS_H_
+#ifndef ROS_MPLUGIN_BLOCK_PUBLISHER_H_
+#define ROS_MPLUGIN_BLOCK_PUBLISHER_H_
 
-#include <mico/ros_wrapper/flow/streamers/BlockROSSubscriber.h>
-#include <opencv2/opencv.hpp>
-#include <Eigen/Eigen>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Pose.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/NavSatFix.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <cv_bridge/cv_bridge.h>
-// #include <dvs_msgs/EventArray.h>
+#include <ros/ros.h>
+#include <mico/ros_wrapper/ROSPublishers.h>
 
 namespace ros_wrapper{
 
-	template<typename T_>
-	struct TraitRosSubscriber{
-		static std::string blockName_;
-		static std::map<std::string, std::string> output_;
-		static std::any conversion_(std::string _tag, const typename T_::ConstPtr &_msg);
-		typedef T_ ROSType_;
-	};
+    template<typename _Trait >
+    class BlockROSPublisher : public flow::Block{
+    public:
+        std::string name() {return _Trait::blockName_; }
+		std::string description() const override {return "Flow wrapper of ROS publishers";};
 
-	typedef TraitRosSubscriber<geometry_msgs::PoseStamped> 	TraitPoseStamped;
-	typedef TraitRosSubscriber<sensor_msgs::Imu> 			TraitImu;
-	typedef TraitRosSubscriber<sensor_msgs::NavSatFix> 		TraitGPS;
-	typedef TraitRosSubscriber<sensor_msgs::Image> 			TraitImage;
-	typedef TraitRosSubscriber<sensor_msgs::PointCloud2> 	TraitCloud;
-	// typedef TraitRosSubscriber<dvs_msgs::EventArray> 		TraitEvent;
 
-	typedef BlockROSSubscriber< TraitPoseStamped > 			BlockROSSubscriberPoseStamped;
-	typedef BlockROSSubscriber< TraitCloud       > 			BlockROSSubscriberCloud;
-	typedef BlockROSSubscriber< TraitImu         > 			BlockROSSubscriberImu;
-	typedef BlockROSSubscriber< TraitGPS         > 			BlockROSSubscriberGPS;
-	typedef BlockROSSubscriber< TraitImage       > 			BlockROSSubscriberImage;			
-	// typedef BlockROSSubscriber< TraitEvent       > 			BlockROSSubscriberEventArray;			
+		BlockROSPublisher(){
+            createPolicy(_Trait::input_);
+            for (auto &[tag , type] : _Trait::input_){
+                registerCallback({tag}, 
+                                    [&](flow::DataFlow _data){
+                                        auto topicContent =std::any_cast<typename _Trait::ROSType_>(_Trait::conversion_(_data));
+                                        pubROS_.publish(topicContent);
+                                    }
+                );
+            }    
+        };
+
+        virtual bool configure(std::unordered_map<std::string, std::string> _params) override{
+            std::string topicPublish = _params["topic"];
+            pubROS_ = nh_.advertise< typename _Trait::ROSType_ >(topicPublish, 1 );
+            return true;
+        }
+        std::vector<std::string> parameters() override {return {"topic"};}
+
+    private:
+		ros::NodeHandle nh_;
+		ros::Publisher pubROS_;
+    };
+
+
+	typedef BlockROSPublisher< TraitPoseStampedPublisher > BlockROSPublisherPoseStamped;
+	typedef BlockROSPublisher< TraitPointCloudPublisher  > BlockROSPublisherPointCloud;
+	typedef BlockROSPublisher< TraitImagePublisher       > BlockROSPublisherImage;
 }
+
 
 #endif

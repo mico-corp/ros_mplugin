@@ -19,7 +19,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <mico/ros_wrapper/flow/streamers/ROSStreamers.h>
+#include <mico/ros_wrapper/ROSStreamers.h>
 
 namespace ros_wrapper{
 
@@ -28,8 +28,7 @@ namespace ros_wrapper{
 	template<> std::string TraitPoseStamped::blockName_ = "ROS Subscriber Pose";
 	template<> std::map<std::string, std::string> TraitPoseStamped::output_ = {{{"Pose", "mat44"}}};
 
-	template<> 
-	std::any  TraitPoseStamped::conversion_(std::string _tag, const geometry_msgs::PoseStamped::ConstPtr &_msg){
+	template<> std::any TraitPoseStamped::conversion_(std::string _tag, const geometry_msgs::PoseStamped::ConstPtr &_msg){
 		Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
 		pose.block<3,1>(0,3) = Eigen::Vector3f(_msg->pose.position.x, _msg->pose.position.y, _msg->pose.position.z);
 
@@ -43,8 +42,8 @@ namespace ros_wrapper{
 	template<> std::string TraitImu::blockName_ = "ROS Subscriber Imu";
 	template<> std::map<std::string, std::string> TraitImu::output_ = {{	{"Orientation", "vec4"},
 																			{"Acceleration", "vec3"}}};
-	template<> 
-	std::any TraitImu::conversion_(std::string _tag, const sensor_msgs::Imu::ConstPtr &_msg){
+
+	template<> std::any TraitImu::conversion_(std::string _tag, const sensor_msgs::Imu::ConstPtr &_msg){
 		if (_tag == "Orientation"){
 			Eigen::Quaternionf q = Eigen::Quaternionf(_msg->orientation.w, _msg->orientation.x, _msg->orientation.y, _msg->orientation.z);
 			return q;
@@ -61,8 +60,8 @@ namespace ros_wrapper{
 	template<> std::map<std::string, std::string> TraitGPS::output_ = {{	{"Latitude", "float"} , 
 																			{"Longitude", "float"},
 																			{"Altitude", "float"}}};
-	template<> 
-	std::any TraitGPS::conversion_(std::string _tag, const sensor_msgs::NavSatFix::ConstPtr &_msg){
+
+	template<> std::any TraitGPS::conversion_(std::string _tag, const sensor_msgs::NavSatFix::ConstPtr &_msg){
 		if (_tag == "Latitude"){
 			float lat = float(_msg->latitude);
 			return lat;
@@ -80,17 +79,15 @@ namespace ros_wrapper{
 	template<> std::string TraitImage::blockName_ = "ROS Subscriber Image";
 	template<> std::map<std::string, std::string> TraitImage::output_ = {{{"Color Image", "image"}}};
 
-	template<> 
-	std::any TraitImage::conversion_(std::string _tag, const sensor_msgs::Image::ConstPtr &_msg){
-		return cv_bridge::toCvCopy(_msg, "bgr8")->image;;
+	template<> std::any TraitImage::conversion_(std::string _tag, const sensor_msgs::Image::ConstPtr &_msg){
+		return cv_bridge::toCvCopy(_msg, "bgr8")->image;
 	}
 
 	//-------------------------------------------------------------------------------------------------------------
 	template<> std::string TraitCloud::blockName_ = "ROS Subscriber PointCloud";
 	template<> std::map<std::string, std::string> TraitCloud::output_ = {{{"Point cloud", "cloud"}}};
 
-	template<> 
-	std::any TraitCloud::conversion_(std::string _tag, const sensor_msgs::PointCloud2::ConstPtr &_msg){
+	template<> std::any TraitCloud::conversion_(std::string _tag, const sensor_msgs::PointCloud2::ConstPtr &_msg){
 		pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBNormal>);
     	pcl::fromROSMsg(*_msg, *cloud);
 

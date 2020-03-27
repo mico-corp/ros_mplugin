@@ -19,46 +19,42 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //---------------------------------------------------------------------------------------------------------------------
 
-#ifndef ROS_MPLUGIN_BLOCK_SUBSCRIBER_H_
-#define ROS_MPLUGIN_BLOCK_SUBSCRIBER_H_
+#ifndef ROS_MPLUGIN_STREAMERS_H_
+#define ROS_MPLUGIN_STREAMERS_H_
 
-#include <ros/ros.h>
+#include <opencv2/opencv.hpp>
+#include <Eigen/Eigen>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <flow/flow.h>
 
 
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/Imu.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <cv_bridge/cv_bridge.h>
+// #include <dvs_msgs/EventArray.h>
+
 namespace ros_wrapper{
-	template<typename _Trait >
-    class BlockROSSubscriber : public flow::Block{
-    public:
-		BlockROSSubscriber(){
-            for (auto tag : _Trait::output_)
-				createPipe(tag.first, tag.second);
-			}
 
-        std::string name() {  return _Trait::blockName_; }
+	template<typename _T>
+	struct TraitROSSubscriber{
+		static std::string blockName_;
+		static std::map<std::string, std::string> output_;
+		static std::any conversion_(std::string _tag, const typename _T::ConstPtr &_msg);
+		typedef _T ROSType_;
+	};
 
-        virtual bool configure(std::unordered_map<std::string, std::string> _params) override{
-            subROS_ = nh_.subscribe<typename _Trait::ROSType_>(_params["topic"], 1 , &BlockROSSubscriber::subsCallback, this);
-	    	return true;
-	    }
-
-        std::vector<std::string> parameters() override {return {"topic"};} 
-
-    private:
-        void subsCallback(const typename _Trait::ROSType_::ConstPtr &_msg){
-			for (auto tag : _Trait::output_){
-				if(getPipe(tag.first)->registrations() !=0 ){
-               		getPipe(tag.first)->flush(_Trait::conversion_(tag.first , _msg));
-				}
-			}
-        }
-
-    private:
-		ros::NodeHandle nh_;
-		ros::Subscriber subROS_;
-    };
-
+	typedef TraitROSSubscriber<geometry_msgs::PoseStamped> 	TraitPoseStamped;
+	typedef TraitROSSubscriber<sensor_msgs::Imu> 			TraitImu;
+	typedef TraitROSSubscriber<sensor_msgs::NavSatFix> 		TraitGPS;
+	typedef TraitROSSubscriber<sensor_msgs::Image> 			TraitImage;
+	typedef TraitROSSubscriber<sensor_msgs::PointCloud2> 	TraitCloud;
+	// typedef TraitROSSubscriber<dvs_msgs::EventArray> 		TraitEvent;		
 }
-
 
 #endif

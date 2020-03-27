@@ -22,8 +22,8 @@
 #include <flow/flow.h>
 #include <ros/ros.h>
 
-#include <mico/ros_wrapper/flow/streamers/ROSStreamers.h>
-#include <mico/ros_wrapper/flow/publishers/ROSPublishers.h>
+#include <mico/ros_wrapper/flow/BlockROSSubscriber.h>
+#include <mico/ros_wrapper/flow/BlockROSPublisher.h>
 
 namespace ros_wrapper{
 
